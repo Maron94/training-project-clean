@@ -1,0 +1,10 @@
+<h2>Dostępne treningi</h2>
+
+<div *ngFor="let training of trainings" class="card">
+  <h3>{{ training.title }}</h3>
+  <p><strong>Data:</strong> {{ training.date.toDate() | date:'medium' }}</p>
+  <p><strong>Opis:</strong> {{ training.description }}</p>
+  <p><strong>Lokalizacja:</strong> {{ training.location }}</p>
+  <p><strong>Miejsc:</strong> {{ training.numberOfParticipants }}</p>
+  <button (click)="reserve(training)">Zarezerwuj</button>
+</div>
