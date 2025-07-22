@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TrainingService, Training } from '../services/training.service';
+import { TrainingService, Training} from '/home/daniel/ProjektTraining/PTC/training-project-clean/src/services/training.service';
+
 
 @Component({
   selector: 'app-reservation-page',
