@@ -25,7 +25,7 @@ export class TrainingService {
   reserveTraining(training: Training): void {
     // Implementacja rezerwacji treningu
     console.log('Rezerwacja treningu:', training.title);
-
+    let participants = 0;
     const trainingRef = doc(this.firestore, `trainings/${training.title}`);
     updateDoc(trainingRef, { numberOfParticipants: training.numberOfParticipants - 1 });
     if (training.numberOfParticipants > 0) {

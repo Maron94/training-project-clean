@@ -1,17 +1,22 @@
 <h2>Available Trainings</h2>
 
+<div class ="grid-container">
 <div *ngFor="let training of trainings" class="card">
 
-  <h3><strong>{{ training.title }}</strong></h3>
+  <h2><strong>{{ training.title }}</strong></h2>
 
-  
+  <p></p>
   <p><strong>Date:</strong> {{ training.date.toDate() | date:'medium' }}</p>
-
   <p><strong>Description:</strong> {{ training.description }} </p>
-
   <p><strong>Location:</strong> {{ training.location }} </p>
 
-  <p><strong>Still available:</strong> {{ training.numberOfParticipants }} slots</p>
+  <p> <strong>Still available:</strong> 
+    <ng-container [ngSwitch]="training.numberOfParticipants">
+    <p *ngSwitchCase="0">No slots for this training</p>
+    <p *ngSwitchCase="1">1 slot</p>
+    <p *ngSwitchDefault>{{ training.numberOfParticipants }} slots</p>
+  </ng-container>
 
-  <button class="btn btn-primary">To booking</button>
+  <button class="btn btn-primary">Booking Formular</button>
+</div>
 </div>
