@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { Timestamp } from 'firebase/firestore';
 
 export interface Training {
+  id: number;
   title: string;
   description: string;
   location: string;

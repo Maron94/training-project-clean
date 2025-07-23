@@ -1,0 +1,33 @@
+<div class="booking-form">
+  <h2>Booking Form</h2>
+
+  <!-- Select number of participants -->
+  <label>
+    Select number of participants:
+    <select [(ngModel)]="selectedSlots" (change)="showForm = true">
+      <option *ngFor="let n of availableSlotsArray" [value]="n"> 
+        {{ n }}
+      </option>
+    </select>
+  </label>
+
+   <form *ngIf="showForm" (ngSubmit)="submitForm()"> 
+    <div> </div>
+    <label>
+      First Name:
+     <input type="text" [(ngModel)]="firstName" name="firstName" required /> 
+    </label>
+
+    <label>
+      Last Name:
+     <input type="text" [(ngModel)]="lastName" name="lastName" required /> 
+    </label>
+
+    <label>
+      Email:
+       <input type="email"  placeholder="Enter proper email address to verify/edit your bookings" [(ngModel)]="email" name="email" required /> 
+    </label>
+
+   <button type="Next person">Next</button> 
+
+    <button type="submit">Submit</button>

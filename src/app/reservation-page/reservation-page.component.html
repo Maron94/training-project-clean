@@ -1,4 +1,5 @@
-<h2>Available Trainings</h2>
+<h1>Available Trainings</h1>
+
 
 <div class ="grid-container">
 <div *ngFor="let training of trainings" class="card">
@@ -17,6 +18,8 @@
     <p *ngSwitchDefault>{{ training.numberOfParticipants }} slots</p>
   </ng-container>
 
-  <button class="btn btn-primary">Booking Formular</button>
+  <button [routerLink]="['/booking', training.id]">
+  Booking Formular
+</button>
 </div>
 </div>
