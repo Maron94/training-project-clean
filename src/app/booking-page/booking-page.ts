@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Firestore, doc, getDoc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, arrayRemove, doc, getDoc, updateDoc } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { collection, setDoc } from 'firebase/firestore';
 
 @Component({
   selector: 'app-booking-page',
@@ -23,9 +24,52 @@ export class BookingPageComponent implements OnInit {
   lastName = '';
   email = '';
 
+nextStep() {
+  if (this.participants[this.currentStep].name && this.participants[this.currentStep].lastName) {
+    this.currentStep++;
+  } else {
+    alert('Please fill out both fields.');
+  }
+}
+
+prevStep() {
+  if (this.currentStep > 0) {
+    this.currentStep--;
+  }
+}
+
+finishParticipants() {
+  const allFilled = this.participants.every(p => p.name && p.lastName);
+  if (allFilled) {
+    this.showEmailInput = true;
+  } else {
+    alert('Fill in all participants before continuing.');
+  }
+}
+
   constructor(private route: ActivatedRoute, private firestore: Firestore) {}
 
+participants: { name: string; lastName: string }[] = [];
+currentStep = 0;
+showEmailInput = false;
+
+onSlotChange() {
+  this.participants = Array.from({ length: this.selectedSlots }, () => ({
+    name: '',
+    lastName: ''
+  }));
+
+  this.currentStep = 0;
+  this.showEmailInput = false;
+}
+
   async ngOnInit() {
+    
+    this.participants = Array.from({ length: this.selectedSlots }, () => ({
+      name: '',
+      lastName: ''
+    }));
+    
     this.trainingId = this.route.snapshot.paramMap.get('id')!;
     const docRef = doc(this.firestore, 'trainings', this.trainingId);
     const docSnap = await getDoc(docRef);
@@ -37,15 +81,29 @@ export class BookingPageComponent implements OnInit {
   }
 
   async submitForm() {
-    
-    const docRef = doc(this.firestore, 'trainings', this.trainingId);
-
-
-    const updatedSlots = this.availableSlots - this.selectedSlots;
-    await updateDoc(docRef, {
-      numberOfParticipants: updatedSlots
-    });
-
-    alert(`Booking confirmed for ${this.selectedSlots} participant(s)!`);
+  if (!this.email) {
+    alert('Please enter your email.');
+    return;
   }
+
+  const batch = this.participants.map(async participant => {
+    const docRef = doc(collection(this.firestore, 'participants'));
+    await setDoc(docRef, {
+      name: participant.name,
+      lastName: participant.lastName,
+      email: this.email,
+      trainingId: this.trainingId
+    });
+  });
+
+  await Promise.all(batch);
+
+  // Aktualizacja liczby miejsc
+  const trainingRef = doc(this.firestore, 'trainings', this.trainingId);
+  await updateDoc(trainingRef, {
+    numberOfParticipants: this.availableSlots - this.selectedSlots
+  });
+
+  alert('Booking completed!');
+}
 }

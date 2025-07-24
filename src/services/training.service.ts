@@ -36,5 +36,6 @@ export class TrainingService {
     else {
       console.error('Brak dostępnych miejsc na trening:', training.title);      
   }
+    const trainies = doc(this.firestore, 'participants', training.title);
  }
 }
