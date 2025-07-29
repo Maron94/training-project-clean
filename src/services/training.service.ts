@@ -4,6 +4,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { Observable } from 'rxjs';
 import { Timestamp } from 'firebase/firestore';
 
+
 export interface Training {
   id: number;
   title: string;
@@ -17,7 +18,9 @@ export interface Training {
   providedIn: 'root'
 })
 export class TrainingService {
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore) {
+    console.log('TrainingService działa!');
+  }
 
   getTrainings(): Observable<Training[]> {
     const trainingsRef = collection(this.firestore, 'trainings');

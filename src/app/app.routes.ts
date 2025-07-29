@@ -6,5 +6,5 @@ import { RouterModule } from '@angular/router';
 
 export const routes: Routes = [
   { path: '', component: ReservationPageComponent },
-  { path: 'booking/:id', component: BookingPageComponent },
+  { path: 'booking-page/:id', component: BookingPageComponent },
 ];
