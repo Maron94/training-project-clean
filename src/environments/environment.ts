@@ -1,14 +1,17 @@
+
 import { initializeApp } from "firebase/app";
 
 export const environment = {
-    production: false,
-    firebase: {
-      apiKey: 'AIzaSyDpU-bwy2G7T7TekZCp5or6VYUkC34VbdI',
-      authDomain: 'trainingproject-b19b5.firebaseapp.com',
-      projectId: 'trainingproject-b19b5',
-      storageBucket: 'trainingproject-b19b5.appspot.com',
-      messagingSenderId: '404868348449',
-      appId: '1:404868348449:web:4c10d1999f1aea9b7075a0'
-    }
-  };
-  const app = initializeApp(environment.firebase);
+  production: false,
+  firebase: {
+  apiKey: "AIzaSyAuBHy5k2hgaxirbRRDQ9QpVweBwYKBH1E",
+  authDomain: "tranings-selfservice.firebaseapp.com",
+  projectId: "tranings-selfservice",
+  storageBucket: "tranings-selfservice.firebasestorage.app",
+  messagingSenderId: "898856742290",
+  appId: "1:898856742290:web:ab6f6b18fea92afe94254b"
+  }
+};
+
+// Initialize Firebase
+const app = initializeApp(environment.firebase);

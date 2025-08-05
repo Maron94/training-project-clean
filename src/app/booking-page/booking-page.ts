@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Firestore, arrayRemove, doc, getDoc, updateDoc } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { collection, setDoc } from 'firebase/firestore';
+import { TrainingService } from '../../services/training.service';
 
 @Component({
   selector: 'app-booking-page',
@@ -20,57 +20,24 @@ export class BookingPageComponent implements OnInit {
   showForm = false;
   selectedSlots: number = 0;
 
-  firstName = '';
-  lastName = '';
+  participants: { name: string; lastName: string }[] = [];
+  currentStep = 0;
+  showEmailInput = false;
   email = '';
 
-nextStep() {
-  if (this.participants[this.currentStep].name && this.participants[this.currentStep].lastName) {
-    this.currentStep++;
-  } else {
-    alert('Please fill out both fields.');
-  }
-}
-
-prevStep() {
-  if (this.currentStep > 0) {
-    this.currentStep--;
-  }
-}
-
-finishParticipants() {
-  const allFilled = this.participants.every(p => p.name && p.lastName);
-  if (allFilled) {
-    this.showEmailInput = true;
-  } else {
-    alert('Fill in all participants before continuing.');
-  }
-}
-
-  constructor(private route: ActivatedRoute, private firestore: Firestore) {}
-
-participants: { name: string; lastName: string }[] = [];
-currentStep = 0;
-showEmailInput = false;
-
-onSlotChange() {
-  this.participants = Array.from({ length: this.selectedSlots }, () => ({
-    name: '',
-    lastName: ''
-  }));
-
-  this.currentStep = 0;
-  this.showEmailInput = false;
-}
+  constructor(
+    private route: ActivatedRoute, 
+    private firestore: Firestore,
+    private trainingService: TrainingService
+  ) {}
 
   async ngOnInit() {
-    
-    this.participants = Array.from({ length: this.selectedSlots }, () => ({
-      name: '',
-      lastName: ''
-    }));
-    
     this.trainingId = this.route.snapshot.paramMap.get('id')!;
+    await this.loadTrainingData();
+  }
+
+  //Pobiera aktualną liczbę wolnych miejsc
+  async loadTrainingData() {
     const docRef = doc(this.firestore, 'trainings', this.trainingId);
     const docSnap = await getDoc(docRef);
 
@@ -80,30 +47,63 @@ onSlotChange() {
     }
   }
 
-  async submitForm() {
-  if (!this.email) {
-    alert('Please enter your email.');
-    return;
+  //Aktualizacja listy uczestników po wyborze ilości miejsc
+  onSlotChange() {
+    this.participants = Array.from({ length: this.selectedSlots }, () => ({
+      name: '',
+      lastName: ''
+    }));
+
+    this.currentStep = 0;
+    this.showEmailInput = false;
   }
 
-  const batch = this.participants.map(async participant => {
-    const docRef = doc(collection(this.firestore, 'participants'));
-    await setDoc(docRef, {
-      name: participant.name,
-      lastName: participant.lastName,
-      email: this.email,
-      trainingId: this.trainingId
-    });
-  });
+  nextStep() {
+    if (this.participants[this.currentStep].name && this.participants[this.currentStep].lastName) {
+      this.currentStep++;
+    } else {
+      alert('Please fill out both fields.');
+    }
+  }
 
-  await Promise.all(batch);
+  prevStep() {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+    }
+  }
 
-  // Aktualizacja liczby miejsc
-  const trainingRef = doc(this.firestore, 'trainings', this.trainingId);
-  await updateDoc(trainingRef, {
-    numberOfParticipants: this.availableSlots - this.selectedSlots
-  });
+  finishParticipants() {
+    const allFilled = this.participants.every(p => p.name && p.lastName);
+    if (allFilled) {
+      this.showEmailInput = true;
+    } else {
+      alert('Fill in all participants before continuing.');
+    }
+  }
 
-  alert('Booking completed!');
-}
+  // Obsługa rezerwacji i wysyłki linku edycji
+  async submitForm() {
+    if (!this.email || !/\S+@\S+\.\S+/.test(this.email)) {
+      alert('Please enter a valid email.');
+      return;
+    }
+
+    try {
+      await this.trainingService.createBooking(this.trainingId, this.participants, this.email);
+      alert('Booking completed! A unique edit link has been sent to your email.');
+      await this.loadTrainingData(); // Odśwież wolne miejsca
+      this.resetForm();
+    } catch (error) {
+      console.error('Booking error:', error);
+      alert('An error occurred while booking. Please try again.');
+    }
+  }
+
+  resetForm() {
+    this.selectedSlots = 0;
+    this.participants = [];
+    this.currentStep = 0;
+    this.showEmailInput = false;
+    this.email = '';
+  }
 }
